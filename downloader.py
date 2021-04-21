@@ -12,6 +12,9 @@ from tqdm import tqdm
 import numpy as np
 import requests
 from requests.exceptions import ConnectionError, ReadTimeout, TooManyRedirects, MissingSchema, InvalidURL
+from urllib3.exceptions import InsecureRequestWarning
+
+requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 
 def main():
@@ -234,7 +237,7 @@ def main():
                     add_stats_to_debug_csv()
 
         try:
-            img_resp = requests.get(img_url, timeout=1)
+            img_resp = requests.get(img_url, timeout=1, verify=False)
         except ConnectionError:
             logging.debug(f"Connection Error for url {img_url}")
             return finish('failure')
@@ -294,7 +297,7 @@ def main():
         url_urls = imagenet_api_wnid_to_urls(class_wnid)
 
         time.sleep(0.05)
-        resp = requests.get(url_urls)
+        resp = requests.get(url_urls, verify=False)
 
         class_folder = os.path.join(args.data_root, class_name)
         if not os.path.exists(class_folder):
